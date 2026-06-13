@@ -14,7 +14,7 @@ export const PeoplePage = () => {
   // Підключаємо хук для роботи з URL параметрами
   const [searchParams] = useSearchParams();
 
-  // Завантаження даних (як у попередній частині)
+  // Завантаження даних
   useEffect(() => {
     setIsLoading(true);
     setHasError(false);
@@ -30,6 +30,7 @@ export const PeoplePage = () => {
   const centuries = searchParams.getAll('centuries');
   const sortField = searchParams.get('sort');
   const order = searchParams.get('order');
+  const sex = searchParams.get('sex'); // Додали витягування статі
 
   // 2. Застосовуємо фільтри та сортування до масиву
   let visiblePeople = [...people];
@@ -56,8 +57,16 @@ export const PeoplePage = () => {
     });
   }
 
-  // Сортування
-  if (sortField) {
+  // Фільтр за статтю (sex) - додано!
+  if (sex) {
+    visiblePeople = visiblePeople.filter(person => person.sex === sex);
+  }
+
+  // Сортування (з валідацією полів)
+  const allowedSortFields = ['name', 'sex', 'born', 'died'];
+  const isSortValid = sortField && allowedSortFields.includes(sortField);
+
+  if (isSortValid) {
     visiblePeople.sort((a, b) => {
       const aValue = a[sortField as keyof Person] || '';
       const bValue = b[sortField as keyof Person] || '';

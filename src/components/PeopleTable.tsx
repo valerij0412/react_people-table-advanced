@@ -1,43 +1,53 @@
 import { useSearchParams, useParams } from 'react-router-dom';
 import { Person } from '../types/Person';
 import { getSearchWith } from '../utils/searchHelper';
-import { PersonLink } from './PersonLink'; // Додаємо імпорт
+import { PersonLink } from './PersonLink';
 
 type Props = {
   people: Person[];
 };
 
+// Звузили типи для безпеки, як просив ментор
+type SortField = 'name' | 'sex' | 'born' | 'died';
+
 export const PeopleTable: React.FC<Props> = ({ people }) => {
   const [searchParams, setSearchParams] = useSearchParams();
-  const { slug } = useParams(); // Дістаємо поточну вибрану людину
+  const { slug } = useParams();
 
   const currentSort = searchParams.get('sort');
   const currentOrder = searchParams.get('order');
 
-  const handleSort = (field: keyof Person) => {
-    // ... твоя логіка сортування залишається без змін ...
+  const handleSort = (field: SortField) => {
     let nextSort: string | null = field;
     let nextOrder: string | null = null;
 
     if (currentSort === field) {
       if (currentOrder !== 'desc') {
+        // Другий клік: ставимо desc
         nextOrder = 'desc';
       } else {
+        // Третій клік: вимикаємо сортування
         nextSort = null;
         nextOrder = null;
       }
+    } else {
+      // Клік по іншій колонці: починаємо спочатку (asc)
+      nextSort = field;
+      nextOrder = null;
     }
 
+    // ВИПРАВЛЕНО: Обгорнули у new URLSearchParams
     setSearchParams(
-      getSearchWith(searchParams, {
-        sort: nextSort,
-        order: nextOrder,
-      }),
+      new URLSearchParams(
+        getSearchWith(searchParams, {
+          sort: nextSort,
+          order: nextOrder,
+        }),
+      ),
     );
   };
 
   const getSortArrow = (field: string) => {
-    // ... логіка стрілочок залишається ...
     if (currentSort !== field) {
       return '';
     }
@@ -45,7 +55,6 @@ export const PeopleTable: React.FC<Props> = ({ people }) => {
     return currentOrder === 'desc' ? ' ▼' : ' ▲';
   };
 
-  // Допоміжна функція для пошуку батьків
   const getPersonByName = (name: string) => people.find(p => p.name === name);
 
   return (
@@ -54,7 +63,6 @@ export const PeopleTable: React.FC<Props> = ({ people }) => {
       className="table is-striped is-hoverable is-narrow is-fullwidth"
     >
       <thead>
-        {/* ... твій thead з обробниками кліків залишається без змін ... */}
         <tr>
           <th onClick={() => handleSort('name')} style={{ cursor: 'pointer' }}>
             Name{getSortArrow('name')}

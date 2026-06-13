@@ -10,10 +10,16 @@ export const PeopleFilters = () => {
   const centuries = searchParams.getAll('centuries');
 
   // Обробник для текстового поля пошуку
+  // Як має бути:
+  // Як має бути:
   const handleQueryChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
 
-    setSearchParams(getSearchWith(searchParams, { query: value || null }));
+    setSearchParams(
+      new URLSearchParams(
+        getSearchWith(searchParams, { query: value || null }),
+      ),
+    );
   };
 
   // Логіка для додавання/видалення століть
